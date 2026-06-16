@@ -1,0 +1,9 @@
+# HomeWork06 input file
+# Format: Variable = Value
+
+N = 100
+chunk_size = 8
+a = 3.0
+x_value = 0.1
+y_value = 7.1
+output_file = daxpy_chunks.h5
