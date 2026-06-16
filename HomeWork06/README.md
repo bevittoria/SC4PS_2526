@@ -87,19 +87,17 @@ The program prints:
 It also writes an HDF5 file containing:
 
 ```text
-/config
-/vectors/x
-/vectors/y
-/vectors/d_reference
-/vectors/d_chunked
-/chunks/start_index
-/chunks/end_index
-/chunks/length
-/chunks/partial_sum
-/chunks/chunk_0000/x
-/chunks/chunk_0000/y
-/chunks/chunk_0000/d
-/chunks/chunk_0000/partial_sum
+/x
+/y
+/d_original
+/d_chunked
+/partial_sum
+/chunk_start
+/chunk_end
+/sum_original
+/sum_chunks
+/chunk_0000
+/chunk_0001
 ...
 ```
 
@@ -107,7 +105,7 @@ If `h5dump` is installed, inspect the output with:
 
 ```bash
 h5dump -n daxpy_chunks.h5
-h5dump -d /chunks/partial_sum daxpy_chunks.h5
+h5dump -d /partial_sum daxpy_chunks.h5
 ```
 
 ## Note

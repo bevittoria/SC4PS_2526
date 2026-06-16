@@ -14,6 +14,8 @@ Since every element of `A` is `a` and every element of `B` is `b`, each element 
 C[i][j] = N * a * b
 ```
 
+Here `1_N` is interpreted as an all-ones matrix, so the sum over `k` contains `N` equal terms.
+
 ## Compile
 
 ```bash
@@ -32,21 +34,14 @@ Example:
 ./matmul 2 3 4 output.txt
 ```
 
-The optional fifth argument is the number of repetitions for the benchmark:
-
-```bash
-./matmul 2 3 300 output.txt 3
-```
-
 ## What the Code Does
 
 - Allocates `A`, `B`, and `C` as contiguous 1D arrays.
-- Tests all six loop orderings: `ijk`, `ikj`, `jik`, `jki`, `kij`, `kji`.
+- Tests two loop orderings: `ijk` and `ikj`.
 - Times each version using `clock()`.
-- Checks a few elements quickly during the benchmark.
-- Performs a full check before saving the output matrix.
+- Checks every element of the result matrix.
 - Saves matrix `C` to the file given by `fileout`.
 
 ## Benchmark Note
 
-In C, arrays are stored in row-major order, so consecutive `j` indices are contiguous in memory. For this reason, loop orderings with `j` in the innermost loop, such as `ikj` and `kij`, are usually faster. They access memory more sequentially and use the cache better.
+In C, arrays are stored in row-major order, so consecutive `j` indices are contiguous in memory. For this reason, `ikj` is usually faster than `ijk`: the innermost loop moves along contiguous memory.

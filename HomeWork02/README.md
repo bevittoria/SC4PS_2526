@@ -11,7 +11,7 @@ where `a` is a scalar and `d`, `x`, `y` are vectors of dimension `N`. All elemen
 ## Compile
 
 ```bash
-gcc -Wall -Wextra -O2 vector_sum.c -o vector_sum
+gcc vector_sum.c -o vector_sum -lm
 ```
 
 ## Run

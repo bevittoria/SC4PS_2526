@@ -1,7 +1,6 @@
 from decimal import Decimal, getcontext
-from pathlib import Path
 import csv
-import math
+import os
 
 import matplotlib
 
@@ -9,211 +8,157 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-LMAX = 50
-L_BACK = 80
-X_VALUES = [0.1, 0.5, 0.9, 0.99]
-PRECISION_DIGITS = 110
+getcontext().prec = 110
+
+lmax = 50
+L = 80
+x_values = [0.1, 0.5, 0.9, 0.99]
 
 
-def legendre_forward_double(x, lmax):
-    values = [0.0] * (lmax + 1)
-    values[0] = 1.0
-
-    if lmax >= 1:
-        values[1] = x
-
-    for ell in range(1, lmax):
-        values[ell + 1] = (
-            ((2.0 * ell + 1.0) / (ell + 1.0)) * x * values[ell]
-            - (ell / (ell + 1.0)) * values[ell - 1]
-        )
-
-    return values
-
-
-def legendre_reference_decimal(x_string, lmax):
-    x = Decimal(x_string)
-    values = [Decimal(0)] * (lmax + 1)
-    values[0] = Decimal(1)
-
-    if lmax >= 1:
-        values[1] = x
+def forward_double(x):
+    P = [0.0] * (lmax + 1)
+    P[0] = 1.0
+    P[1] = x
 
     for ell in range(1, lmax):
-        ell_d = Decimal(ell)
-        values[ell + 1] = (
-            (Decimal(2 * ell + 1) / Decimal(ell + 1)) * x * values[ell]
-            - (ell_d / Decimal(ell + 1)) * values[ell - 1]
+        P[ell + 1] = (
+            ((2.0 * ell + 1.0) / (ell + 1.0)) * x * P[ell]
+            - (ell / (ell + 1.0)) * P[ell - 1]
         )
 
-    return values
+    return P
 
 
-def legendre_backward_double(x, lmax, start_l):
-    if start_l <= lmax:
-        raise ValueError("start_l must be larger than lmax")
+def reference_decimal(x):
+    xd = Decimal(str(x))
+    P = [Decimal(0)] * (lmax + 1)
+    P[0] = Decimal(1)
+    P[1] = xd
 
-    q = [0.0] * (start_l + 2)
-    q[start_l + 1] = 0.0
-    q[start_l] = 1.0
-
-    for ell in range(start_l, 0, -1):
-        q[ell - 1] = (
-            ((2.0 * ell + 1.0) / ell) * x * q[ell]
-            - ((ell + 1.0) / ell) * q[ell + 1]
+    for ell in range(1, lmax):
+        P[ell + 1] = (
+            (Decimal(2 * ell + 1) / Decimal(ell + 1)) * xd * P[ell]
+            - (Decimal(ell) / Decimal(ell + 1)) * P[ell - 1]
         )
 
-    scale = 1.0 / q[0]
-    return [scale * q[ell] for ell in range(lmax + 1)]
+    return P
 
 
-def decimal_abs(value):
-    return value.copy_abs()
+def backward_double(x):
+    Q = [0.0] * (L + 2)
+    Q[L + 1] = 0.0
+    Q[L] = 1.0
+
+    for ell in range(L, 0, -1):
+        Q[ell - 1] = (
+            ((2.0 * ell + 1.0) / ell) * x * Q[ell]
+            - ((ell + 1.0) / ell) * Q[ell + 1]
+        )
+
+    scale = 1.0 / Q[0]
+    return [scale * Q[ell] for ell in range(lmax + 1)]
 
 
-def errors(numerical, reference):
-    value = Decimal.from_float(numerical)
-    abs_err = decimal_abs(value - reference)
-    if decimal_abs(reference) > Decimal("1e-90"):
-        rel_err = abs_err / decimal_abs(reference)
-    else:
-        rel_err = abs_err
-    return abs_err, rel_err
+rows = []
+os.makedirs("plots", exist_ok=True)
+
+for x in x_values:
+    P_forward = forward_double(x)
+    P_ref = reference_decimal(x)
+    P_back = backward_double(x)
+
+    max_forward = Decimal(0)
+    max_backward = Decimal(0)
+
+    for ell in range(lmax + 1):
+        ref = P_ref[ell]
+        fwd = Decimal.from_float(P_forward[ell])
+        bwd = Decimal.from_float(P_back[ell])
+
+        abs_err_fwd = abs(fwd - ref)
+        abs_err_bwd = abs(bwd - ref)
+
+        if abs(ref) > Decimal("1e-90"):
+            rel_err_fwd = abs_err_fwd / abs(ref)
+            rel_err_bwd = abs_err_bwd / abs(ref)
+        else:
+            rel_err_fwd = abs_err_fwd
+            rel_err_bwd = abs_err_bwd
+
+        if rel_err_fwd > max_forward:
+            max_forward = rel_err_fwd
+        if rel_err_bwd > max_backward:
+            max_backward = rel_err_bwd
+
+        rows.append(
+            [
+                x,
+                ell,
+                str(ref),
+                repr(P_forward[ell]),
+                repr(P_back[ell]),
+                str(abs_err_fwd),
+                str(rel_err_fwd),
+                str(abs_err_bwd),
+                str(rel_err_bwd),
+            ]
+        )
+
+    print(
+        f"x = {x:g}: max relative error forward = {max_forward:.3E}, "
+        f"backward = {max_backward:.3E}"
+    )
 
 
-def as_float_for_plot(value):
-    numeric = float(value)
-    if numeric == 0.0:
-        return 1e-35
-    return numeric
+with open("legendre_errors.csv", "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(
+        [
+            "x",
+            "ell",
+            "P_reference",
+            "P_forward",
+            "P_backward",
+            "abs_err_forward",
+            "rel_err_forward",
+            "abs_err_backward",
+            "rel_err_backward",
+        ]
+    )
+    writer.writerows(rows)
 
 
-def compute_rows():
-    getcontext().prec = PRECISION_DIGITS
-    rows = []
-
-    for x in X_VALUES:
-        x_string = format(x, ".17g")
-        reference = legendre_reference_decimal(x_string, LMAX)
-        forward = legendre_forward_double(x, LMAX)
-        backward = legendre_backward_double(x, LMAX, L_BACK)
-
-        for ell in range(LMAX + 1):
-            abs_f, rel_f = errors(forward[ell], reference[ell])
-            abs_b, rel_b = errors(backward[ell], reference[ell])
-
-            rows.append(
-                {
-                    "x": x,
-                    "ell": ell,
-                    "P_reference": str(reference[ell]),
-                    "P_forward": format(forward[ell], ".17g"),
-                    "P_backward": format(backward[ell], ".17g"),
-                    "abs_err_forward": str(abs_f),
-                    "rel_err_forward": str(rel_f),
-                    "abs_err_backward": str(abs_b),
-                    "rel_err_backward": str(rel_b),
-                }
-            )
-
-    return rows
-
-
-def write_csv(rows, path):
-    fieldnames = [
-        "x",
-        "ell",
-        "P_reference",
-        "P_forward",
-        "P_backward",
-        "abs_err_forward",
-        "rel_err_forward",
-        "abs_err_backward",
-        "rel_err_backward",
-    ]
-
-    with path.open("w", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def plot_error(rows, column, ylabel, title, path):
+def make_plot(column, title, ylabel, filename):
     plt.figure(figsize=(7, 4.5))
 
-    for x in X_VALUES:
-        selected = [row for row in rows if math.isclose(row["x"], x)]
-        ell = [row["ell"] for row in selected]
-        err = [as_float_for_plot(Decimal(row[column])) for row in selected]
-        plt.plot(ell, err, marker="o", markersize=3, linewidth=1, label=f"x = {x:g}")
+    for x in x_values:
+        ell_values = []
+        err_values = []
+
+        for row in rows:
+            if row[0] == x:
+                ell_values.append(row[1])
+                value = float(Decimal(row[column]))
+                if value == 0.0:
+                    value = 1e-35
+                err_values.append(value)
+
+        plt.plot(ell_values, err_values, marker="o", markersize=3, label=f"x={x:g}")
 
     plt.yscale("log")
     plt.xlabel("degree ell")
     plt.ylabel(ylabel)
     plt.title(title)
-    plt.grid(True, which="both", alpha=0.3)
+    plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    plt.savefig(path, dpi=180)
+    plt.savefig(filename, dpi=180)
     plt.close()
 
 
-def print_summary(rows):
-    print("HomeWork05 - Stability of Legendre Polynomials")
-    print(f"lmax = {LMAX}, backward start L = {L_BACK}")
-    print()
+make_plot(6, "Forward recurrence: relative error", "relative error", "plots/forward_relative_error.png")
+make_plot(8, "Backward recurrence: relative error", "relative error", "plots/backward_relative_error.png")
+make_plot(5, "Forward recurrence: absolute error", "absolute error", "plots/forward_absolute_error.png")
+make_plot(7, "Backward recurrence: absolute error", "absolute error", "plots/backward_absolute_error.png")
 
-    for x in X_VALUES:
-        selected = [row for row in rows if math.isclose(row["x"], x)]
-        max_forward = max(Decimal(row["rel_err_forward"]) for row in selected)
-        max_backward = max(Decimal(row["rel_err_backward"]) for row in selected)
-        print(
-            f"x = {x:g}: max rel error forward = {max_forward:.3E}, "
-            f"backward = {max_backward:.3E}"
-        )
-
-
-def main():
-    base = Path(__file__).resolve().parent
-    plots_dir = base / "plots"
-    plots_dir.mkdir(exist_ok=True)
-
-    rows = compute_rows()
-    write_csv(rows, base / "legendre_errors.csv")
-
-    plot_error(
-        rows,
-        "rel_err_forward",
-        "relative error",
-        "Forward recurrence: relative error",
-        plots_dir / "forward_relative_error.png",
-    )
-    plot_error(
-        rows,
-        "rel_err_backward",
-        "relative error",
-        "Backward recurrence experiment: relative error",
-        plots_dir / "backward_relative_error.png",
-    )
-    plot_error(
-        rows,
-        "abs_err_forward",
-        "absolute error",
-        "Forward recurrence: absolute error",
-        plots_dir / "forward_absolute_error.png",
-    )
-    plot_error(
-        rows,
-        "abs_err_backward",
-        "absolute error",
-        "Backward recurrence experiment: absolute error",
-        plots_dir / "backward_absolute_error.png",
-    )
-
-    print_summary(rows)
-    print()
-    print("Wrote legendre_errors.csv and plots/*.png")
-
-
-if __name__ == "__main__":
-    main()
+print("Wrote legendre_errors.csv and plots/*.png")

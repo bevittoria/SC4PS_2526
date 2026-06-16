@@ -22,7 +22,7 @@ Y_l0(theta, phi) = sqrt((2*l + 1)/(4*pi)) P_l(cos(theta))
 
 The script implements:
 
-- forward recurrence in standard double precision;
+- forward recurrence with normal Python floats, which are double precision;
 - high-precision reference recurrence using Python `decimal` with 110 decimal digits;
 - Miller-style backward recurrence with `Ptilde[L+1] = 0`, `Ptilde[L] = 1`, then rescaling with `Ptilde[0]`.
 
