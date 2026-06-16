@@ -19,7 +19,7 @@ Here `1_N` is interpreted as an all-ones matrix, so the sum over `k` contains `N
 ## Compile
 
 ```bash
-gcc -Wall -Wextra -O2 matmul.c -o matmul
+gcc matmul.c -o matmul
 ```
 
 ## Run
