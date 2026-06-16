@@ -128,7 +128,7 @@ with open("legendre_errors.csv", "w", newline="") as file:
     writer.writerows(rows)
 
 
-def make_plot(column, title, ylabel, filename):
+def make_plot(column, title, ylabel, filename, ylim=None):
     plt.figure(figsize=(7, 4.5))
 
     for x in x_values:
@@ -146,6 +146,8 @@ def make_plot(column, title, ylabel, filename):
         plt.plot(ell_values, err_values, marker="o", markersize=3, label=f"x={x:g}")
 
     plt.yscale("log")
+    if ylim is not None:
+        plt.ylim(ylim)
     plt.xlabel("degree ell")
     plt.ylabel(ylabel)
     plt.title(title)
@@ -160,5 +162,34 @@ make_plot(6, "Forward recurrence: relative error", "relative error", "plots/forw
 make_plot(8, "Backward recurrence: relative error", "relative error", "plots/backward_relative_error.png")
 make_plot(5, "Forward recurrence: absolute error", "absolute error", "plots/forward_absolute_error.png")
 make_plot(7, "Backward recurrence: absolute error", "absolute error", "plots/backward_absolute_error.png")
+
+make_plot(
+    6,
+    "Forward recurrence: relative error zoom",
+    "relative error",
+    "plots/forward_relative_error_zoom.png",
+    ylim=(1e-17, 1e-12),
+)
+make_plot(
+    5,
+    "Forward recurrence: absolute error zoom",
+    "absolute error",
+    "plots/forward_absolute_error_zoom.png",
+    ylim=(1e-18, 1e-14),
+)
+make_plot(
+    8,
+    "Backward recurrence: relative error zoom",
+    "relative error",
+    "plots/backward_relative_error_zoom.png",
+    ylim=(1e-2, 1e3),
+)
+make_plot(
+    7,
+    "Backward recurrence: absolute error zoom",
+    "absolute error",
+    "plots/backward_absolute_error_zoom.png",
+    ylim=(1e-4, 1e1),
+)
 
 print("Wrote legendre_errors.csv and plots/*.png")

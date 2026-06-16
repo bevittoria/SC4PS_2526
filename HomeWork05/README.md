@@ -53,6 +53,7 @@ The script writes:
 - `plots/backward_relative_error.png`
 - `plots/forward_absolute_error.png`
 - `plots/backward_absolute_error.png`
+- zoomed versions with `_zoom.png`
 
 ## Results
 
