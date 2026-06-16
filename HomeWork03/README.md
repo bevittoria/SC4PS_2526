@@ -14,8 +14,6 @@ Since every element of `A` is `a` and every element of `B` is `b`, each element 
 C[i][j] = N * a * b
 ```
 
-Here `1_N` is interpreted as an all-ones matrix, so the sum over `k` contains `N` equal terms.
-
 ## Compile
 
 ```bash
