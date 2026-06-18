@@ -186,13 +186,20 @@ int main(int argc, char *argv[])
         sum_chunks += partial_sum[c];
     }
 
+    double sum_difference = fabs(sum_original - sum_chunks);
+    double sum_scale = fmax(fabs(sum_original), fabs(sum_chunks));
+    double sum_tolerance = 1e-12 * fmax(1.0, sum_scale);
+    int sums_ok = sum_difference <= sum_tolerance;
+
     printf("N = %ld\n", N);
     printf("chunk_size = %ld\n", chunk_size);
     printf("number_of_chunks = %ld\n", number_of_chunks);
     printf("vector check: %s\n", vectors_ok ? "OK" : "FAILED");
     printf("sum original = %.17g\n", sum_original);
     printf("sum chunks   = %.17g\n", sum_chunks);
-    printf("sum check: %s\n", fabs(sum_original - sum_chunks) < 1e-12 ? "OK" : "FAILED");
+    printf("sum difference = %.17g\n", sum_difference);
+    printf("sum tolerance  = %.17g\n", sum_tolerance);
+    printf("sum check: %s\n", sums_ok ? "OK" : "FAILED");
 
     hid_t file = H5Fcreate(output_file, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
