@@ -43,58 +43,9 @@ The number of chunks is computed with integer ceiling:
 number_of_chunks = (N + chunk_size - 1) / chunk_size
 ```
 
-## Install HDF5 on macOS
-
-This homework can be compiled locally on macOS. HDF5 is not installed by
-default, so first install Homebrew if the `brew` command is missing:
-
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-After the installation, follow the commands printed by Homebrew to add it to
-the shell path. On Apple Silicon Macs, they are usually:
-
-```bash
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
-```
-
-Then install HDF5:
-
-```bash
-brew install hdf5
-```
-
-## Compile on macOS
+## Compile
 
 Compile with the HDF5 compiler wrapper:
-
-```bash
-h5cc -std=c11 -Wall -Wextra -O2 daxpy_chunks_hdf5.c -o daxpy_chunks_hdf5 -lm
-```
-
-If `h5cc` is still not found, use the full Homebrew path:
-
-```bash
-/opt/homebrew/bin/h5cc -std=c11 -Wall -Wextra -O2 daxpy_chunks_hdf5.c -o daxpy_chunks_hdf5 -lm
-```
-
-or simply run:
-
-```bash
-make
-```
-
-## Compile on AlmaLinux/CloudVeneto
-
-On AlmaLinux/CloudVeneto, first install HDF5 development files if needed:
-
-```bash
-sudo dnf install hdf5-devel
-```
-
-Then compile with the HDF5 compiler wrapper:
 
 ```bash
 h5cc -std=c11 -Wall -Wextra -O2 daxpy_chunks_hdf5.c -o daxpy_chunks_hdf5 -lm
@@ -155,9 +106,3 @@ If `h5dump` is installed, inspect the output with:
 h5dump -n daxpy_chunks.h5
 h5dump -d /partial_sum daxpy_chunks.h5
 ```
-
-## Note
-
-The command `sudo dnf install hdf5-devel` is only for Linux distributions that
-use `dnf`, such as AlmaLinux. It does not work on macOS. On macOS, use
-Homebrew and `brew install hdf5`.
