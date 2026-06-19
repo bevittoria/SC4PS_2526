@@ -1,15 +1,5 @@
 # HomeWork 07 - Random Numbers
 
-This homework solves the five random-number exercises from `homework07.ipynb`.
-All random samples are generated in C with the linear congruential generator
-introduced in the notebook:
-
-```text
-x_{n+1} = 1664525 x_n + 1013904223 mod 2^32
-```
-
-Python is used only to plot the CSV files produced by the C program.
-
 ## Exercises
 
 1. Simulate 100,000 fair coin tosses and plot the running fraction of heads.
