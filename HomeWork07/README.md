@@ -1,17 +1,29 @@
 # HomeWork 07 - Random Numbers
 
-This homework studies simple random-number simulations:
+This homework solves the five random-number exercises from `homework07.ipynb`.
+All random samples are generated in C with the linear congruential generator
+introduced in the notebook:
 
-1. coin tosses and the law of large numbers;
-2. Monte Carlo estimate of pi;
-3. change of variables `Y = U^2`;
-4. inverse transform sampling for an exponential distribution;
-5. empirical CDF of the exponential sample.
+```text
+x_{n+1} = 1664525 x_n + 1013904223 mod 2^32
+```
+
+Python is used only to plot the CSV files produced by the C program.
+
+## Exercises
+
+1. Simulate 100,000 fair coin tosses and plot the running fraction of heads.
+2. Estimate pi with Monte Carlo sampling for several values of `N`.
+3. Generate `Y = U^2` and compare the histogram with `f(y) = 1/(2 sqrt(y))`.
+4. Generate an exponential variable with inverse transform sampling,
+   `Y = -log(1 - U)/lambda`, using `lambda = 1.5`.
+5. Plot the empirical CDF of the exponential sample and compare it with
+   `F(y) = 1 - exp(-lambda y)`.
 
 ## Compile
 
 ```bash
-gcc random_exercises.c -o random_exercises -lm
+gcc -std=c11 -Wall -Wextra -O2 random_exercises.c -o random_exercises -lm
 ```
 
 ## Run
@@ -28,28 +40,33 @@ The C program writes:
 - `change_variables.csv`
 - `exponential.csv`
 
-The Python script writes plots in `plots/`.
+The Python script writes the figures in `plots/`.
 
 ## Comments
 
-For the coin toss experiment, the running fraction of heads fluctuates at the beginning but approaches `0.5` as the number of tosses grows. This is the law of large numbers.
+In the coin-toss experiment, the running fraction of heads fluctuates strongly
+at the beginning and then approaches `0.5`, as expected from the law of large
+numbers.
 
-For the Monte Carlo estimate of pi, the error decreases when `N` increases, but not smoothly because the method is random. The expected scaling is approximately proportional to `1/sqrt(N)`.
+The Monte Carlo estimate of pi improves as `N` grows, but the error is not
+monotone because the sample is random. The expected order of convergence is
+approximately `1/sqrt(N)`.
 
-For `Y = U^2`, the analytic density is:
+For the transformation `Y = U^2`, the density is large near zero:
 
 ```text
-f_Y(y) = 1/(2 sqrt(y))
+f_Y(y) = 1/(2 sqrt(y)), 0 < y <= 1.
 ```
 
-For the exponential variable with `lambda = 1.5`, the inverse transform formula is:
+For the exponential sample with `lambda = 1.5`, the inverse-transform formula
+produces a histogram that follows:
 
 ```text
-Y = -log(1 - U)/lambda
+f(y) = lambda exp(-lambda y)
 ```
 
 The empirical CDF follows the exact CDF:
 
 ```text
-F(y) = 1 - exp(-lambda y)
+F(y) = 1 - exp(-lambda y).
 ```
