@@ -7,13 +7,7 @@
 #define TRANSFORM_SAMPLES 200000
 #define EXP_CDF_SAMPLES 50000
 
-/*
- * Linear congruential generator used throughout the notebook:
- *
- *     x_{n+1} = 1664525 x_n + 1013904223 mod 2^32
- *
- * Unsigned 32-bit overflow implements the modulus 2^32 in C.
- */
+
 static uint32_t lcg32_next(uint32_t *state)
 {
     const uint32_t a = 1664525u;
@@ -23,9 +17,6 @@ static uint32_t lcg32_next(uint32_t *state)
     return *state;
 }
 
-/*
- * Convert the raw integer state to a double in [0, 1).
- */
 static double lcg32_next_double(uint32_t *state)
 {
     return lcg32_next(state) / 4294967296.0;
@@ -71,10 +62,6 @@ static void write_coin_tosses(void)
 
         heads += toss;
 
-        /*
-         * Keep all early points and then thin the long tail. This makes the CSV
-         * small while preserving the visible convergence on a logarithmic axis.
-         */
         if (i <= 100 || i % 1000 == 0) {
             fprintf(file, "%d,%.12f\n", i, (double)heads / i);
         }
