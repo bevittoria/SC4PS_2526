@@ -39,7 +39,7 @@ def make_plot(data, column, title, ylabel, filename, ylim=None):
     plt.yscale("log")
     if ylim is not None:
         plt.ylim(ylim)
-    plt.xlabel("degree ell")
+    plt.xlabel("degree l")
     plt.ylabel(ylabel)
     plt.title(title)
     plt.grid(True)
