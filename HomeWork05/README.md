@@ -1,6 +1,7 @@
 # HomeWork 05 - Stability of Legendre Polynomials
 
-This homework compares numerical methods for computing ordinary Legendre polynomials:
+This homework studies the numerical stability of recurrence formulas for the
+ordinary Legendre polynomials:
 
 ```text
 P_l(x), l = 0, ..., 50
@@ -12,19 +13,16 @@ for:
 x = 0.1, 0.5, 0.9, 0.99
 ```
 
-Since `m = 0`, these are connected to spherical harmonics by:
+The numerical computation is done in C. Python is used only to plot the CSV
+file produced by the C program.
 
-```text
-Y_l0(theta, phi) = sqrt((2*l + 1)/(4*pi)) P_l(cos(theta))
-```
+## Files
 
-## Methods
+- `legendre_stability.c`: C implementation of the recurrence tests.
+- `plot_results.py`: Python plotting script.
+- `Makefile`: build and run commands.
 
-The script implements:
-
-- forward recurrence with normal Python floats, which are double precision;
-- high-precision reference recurrence using Python `decimal` with 110 decimal digits;
-- Miller-style backward recurrence with `Ptilde[L+1] = 0`, `Ptilde[L] = 1`, then rescaling with `Ptilde[0]`.
+## Mathematical Background
 
 The forward recurrence is Bonnet's recurrence:
 
@@ -40,15 +38,78 @@ The backward experiment uses:
 P_{l-1}(x) = ((2l + 1)/l) x P_l(x) - ((l + 1)/l) P_{l+1}(x)
 ```
 
+with arbitrary starting values:
+
+```text
+Q_{L+1} = 0
+Q_L = 1
+```
+
+Then the sequence is rescaled so that:
+
+```text
+Q_0 = 1
+```
+
+## Methods
+
+The C program computes:
+
+- a forward recurrence in `double`;
+- a reference recurrence with double-double arithmetic implemented in C;
+- a backward recurrence in `double`, starting from `L = 80`;
+- absolute and relative errors with respect to the double-double reference.
+
+The output is written to:
+
+```text
+legendre_errors.csv
+```
+
+## Compile
+
+```bash
+gcc -std=c11 -Wall -Wextra -O2 legendre_stability.c -o legendre_stability -lm
+```
+
+or simply:
+
+```bash
+make
+```
+
 ## Run
 
 ```bash
-python3 legendre_stability.py
+./legendre_stability
 ```
 
-The script writes:
+or:
+
+```bash
+make run
+```
+
+To generate the plots:
+
+```bash
+python3 plot_results.py
+```
+
+or:
+
+```bash
+make plots
+```
+
+## Output
+
+The C program writes:
 
 - `legendre_errors.csv`
+
+The plotting script writes:
+
 - `plots/forward_relative_error.png`
 - `plots/backward_relative_error.png`
 - `plots/forward_absolute_error.png`
@@ -57,16 +118,19 @@ The script writes:
 
 ## Results
 
-For the tested values of `x` and `lmax = 50`, the forward recurrence stays close to the high-precision reference. The errors are near double-precision roundoff, except when relative error is amplified by very small reference values.
+The forward recurrence stays close to the double-double reference for the tested
+values of `x` and `lmax = 50`.
 
-The backward recurrence does not generally recover the ordinary Legendre polynomials. A three-term recurrence has two independent solutions, and the arbitrary final values used in the Miller-style experiment select an arbitrary combination of them. Rescaling with `Ptilde[0] = 1` fixes only the normalization, not the whole sequence.
-
-Miller's algorithm is useful when the desired solution is minimal in the direction of backward propagation. For ordinary `P_l(x)` on `|x| < 1`, this experiment does not provide a clean dominant/minimal separation selecting `P_l`.
+The backward recurrence is not reliable for computing the ordinary Legendre
+polynomials in this experiment. A three-term recurrence has two independent
+solutions, and arbitrary final values select an arbitrary combination of them.
+Rescaling with `Q_0 = 1` fixes only the normalization, not the full sequence.
 
 ## Conclusion
 
-For `x = 0.1, 0.5, 0.9, 0.99` and `lmax = 50`:
+For this homework:
 
-- the ordinary Legendre forward recurrence is stable;
-- the arbitrary backward recurrence is not a reliable way to compute `P_l(x)`;
-- errors in `P_l(cos(theta))` directly affect `Y_l0`, apart from the known normalization factor.
+- the forward recurrence is stable for the tested cases;
+- the arbitrary backward recurrence is not a reliable method here;
+- using a tolerance/error analysis is necessary when comparing floating-point
+  results.
