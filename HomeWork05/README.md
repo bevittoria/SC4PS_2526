@@ -20,7 +20,6 @@ file produced by the C program.
 
 - `legendre_stability.c`: C implementation of the recurrence tests.
 - `plot_results.py`: Python plotting script.
-- `Makefile`: build and run commands.
 
 ## Mathematical Background
 
