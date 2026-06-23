@@ -22,12 +22,6 @@ static long reverse_bits(long x, int bits)
     return reversed;
 }
 
-/*
- * Iterative radix-2 Cooley-Tukey FFT.
- * The transform is computed in place and uses the convention:
- *
- *     X_k = sum_j x_j exp(-2 pi i j k / N)
- */
 static void fft(complex double *data, long n)
 {
     int bits = 0;
