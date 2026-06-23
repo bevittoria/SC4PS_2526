@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 
 #define PI 3.14159265358979323846
 
@@ -23,7 +22,12 @@ static long reverse_bits(long x, int bits)
     return reversed;
 }
 
-
+/*
+ * Iterative radix-2 Cooley-Tukey FFT.
+ * The transform is computed in place and uses the convention:
+ *
+ *     X_k = sum_j x_j exp(-2 pi i j k / N)
+ */
 static void fft(complex double *data, long n)
 {
     int bits = 0;
@@ -226,7 +230,7 @@ static void run_coupled_oscillators(void)
     const double omega_out = sqrt((k + 2.0 * kc) / m);
     const double f_in = omega_in / (2.0 * PI);
     const double f_out = omega_out / (2.0 * PI);
-    FILE *time_file = open_file("output/coupled_oscillators_time.csv");
+    FILE *time_file = open_file("coupled_oscillators_time.csv");
     double *x1 = malloc((size_t)n * sizeof(*x1));
 
     if (x1 == NULL) {
@@ -249,8 +253,7 @@ static void run_coupled_oscillators(void)
 
     fclose(time_file);
 
-    write_spectrum_csv("output/coupled_oscillators_spectrum.csv",
-                       x1, n, sample_rate);
+    write_spectrum_csv("coupled_oscillators_spectrum.csv", x1, n, sample_rate);
     report_two_largest_peaks("coupled oscillators", x1, n, sample_rate);
 
     printf("theoretical in-phase frequency  = %.5f Hz\n", f_in);
@@ -261,31 +264,29 @@ static void run_coupled_oscillators(void)
 
 int main(void)
 {
-    mkdir("output", 0777);
-
     run_sampling_case("good sampling",
-                      "output/good_sampling_signal.csv",
-                      "output/good_sampling_spectrum.csv",
+                      "good_sampling_signal.csv",
+                      "good_sampling_spectrum.csv",
                       1024, 1024.0,
                       50.0, 1.0,
                       120.0, 0.7);
 
     run_sampling_case("undersampled",
-                      "output/undersampled_signal.csv",
-                      "output/undersampled_spectrum.csv",
+                      "undersampled_signal.csv",
+                      "undersampled_spectrum.csv",
                       256, 128.0,
                       50.0, 1.0,
                       120.0, 0.7);
 
     run_sampling_case("short record",
-                      "output/short_record_signal.csv",
-                      "output/short_record_spectrum.csv",
+                      "short_record_signal.csv",
+                      "short_record_spectrum.csv",
                       64, 512.0,
                       50.0, 1.0,
                       55.0, 1.0);
 
     run_coupled_oscillators();
 
-    printf("CSV files written in output/.\n");
+    printf("CSV files written.\n");
     return 0;
 }

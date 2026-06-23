@@ -12,19 +12,17 @@ writes CSV files. The Python script reads the CSV files and creates the plots.
 
 ## Files
 
-- `src/fft_homework.c`: C implementation of the FFT examples.
-- `scripts/plot_results.py`: Python plotting script.
+- `fft_homework.c`: C implementation of the FFT examples.
+- `plot_results.py`: Python plotting script.
 - `Makefile`: build and run commands.
 
-Generated files are written in:
-
-- `output/` for CSV files;
-- `plots/` for figures.
+CSV files are written in the main `HomeWork04` folder. Figures are written in
+`plots/`.
 
 ## Compile
 
 ```bash
-gcc -std=c11 -Wall -Wextra -O2 src/fft_homework.c -o fft_homework -lm
+gcc -std=c11 -Wall -Wextra -O2 fft_homework.c -o fft_homework -lm
 ```
 
 or simply:
@@ -48,7 +46,7 @@ make run
 To generate plots:
 
 ```bash
-python3 scripts/plot_results.py
+python3 plot_results.py
 ```
 
 or:
@@ -61,14 +59,14 @@ make plots
 
 The program writes:
 
-- `output/good_sampling_signal.csv`
-- `output/good_sampling_spectrum.csv`
-- `output/undersampled_signal.csv`
-- `output/undersampled_spectrum.csv`
-- `output/short_record_signal.csv`
-- `output/short_record_spectrum.csv`
-- `output/coupled_oscillators_time.csv`
-- `output/coupled_oscillators_spectrum.csv`
+- `good_sampling_signal.csv`
+- `good_sampling_spectrum.csv`
+- `undersampled_signal.csv`
+- `undersampled_spectrum.csv`
+- `short_record_signal.csv`
+- `short_record_spectrum.csv`
+- `coupled_oscillators_time.csv`
+- `coupled_oscillators_spectrum.csv`
 
 The plotting script writes:
 

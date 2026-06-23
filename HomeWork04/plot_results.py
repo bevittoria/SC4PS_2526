@@ -1,6 +1,6 @@
 import os
 
-os.environ.setdefault("MPLCONFIGDIR", os.path.join(os.getcwd(), ".matplotlib"))
+os.environ.setdefault("MPLCONFIGDIR", "/private/tmp/matplotlib-homework04")
 
 import matplotlib
 
@@ -10,12 +10,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-OUTPUT_DIR = "output"
 PLOTS_DIR = "plots"
 
 
 def load_csv(name):
-    return np.loadtxt(os.path.join(OUTPUT_DIR, name), delimiter=",", skiprows=1)
+    return np.loadtxt(name, delimiter=",", skiprows=1)
 
 
 def savefig(name):
