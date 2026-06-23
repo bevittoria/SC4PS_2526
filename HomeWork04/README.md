@@ -14,7 +14,6 @@ writes CSV files. The Python script reads the CSV files and creates the plots.
 
 - `fft_homework.c`: C implementation of the FFT examples.
 - `plot_results.py`: Python plotting script.
-- `Makefile`: build and run commands.
 
 CSV files are written in the main `HomeWork04` folder. Figures are written in
 `plots/`.
