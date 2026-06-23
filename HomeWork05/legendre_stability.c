@@ -77,13 +77,6 @@ static double dd_abs(dd_t a)
     return fabs(dd_to_double(a));
 }
 
-/*
- * Forward Bonnet recurrence in double precision:
- *
- *     P_0(x) = 1
- *     P_1(x) = x
- *     P_{l+1}(x) = ((2l+1)/(l+1)) x P_l(x) - (l/(l+1)) P_{l-1}(x)
- */
 static void legendre_forward_double(double x, double p[LMAX + 1])
 {
     p[0] = 1.0;
@@ -95,10 +88,6 @@ static void legendre_forward_double(double x, double p[LMAX + 1])
     }
 }
 
-/*
- * Forward recurrence in double-double precision.
- * This provides a C reference more accurate than ordinary double arithmetic.
- */
 static void legendre_reference_dd(double x, dd_t p[LMAX + 1])
 {
     p[0] = dd_from_double(1.0);
@@ -114,16 +103,6 @@ static void legendre_reference_dd(double x, dd_t p[LMAX + 1])
     }
 }
 
-/*
- * Backward recurrence experiment.
- *
- * We start from arbitrary values at high degree:
- *
- *     Q_{L+1} = 0
- *     Q_L     = 1
- *
- * Then we recurse downward and rescale so that Q_0 = 1.
- */
 static void legendre_backward_double(double x, double p[LMAX + 1])
 {
     double q[L_BACKWARD + 2];
